@@ -80,7 +80,7 @@ _tmux() {
 
     if [[ $COMP_CWORD -le $cmd_index ]]; then
         # The user has not specified a command yet
-        COMPREPLY=( ${COMPREPLY[@]:-} $(compgen -W "$(tmux list-commands | cut -d' ' -f1)" -- "${cur}") )
+        COMPREPLY=( ${COMPREPLY[@]:-} $(compgen -W "$(tmux start \; list-commands | cut -d' ' -f1)" -- "${cur}") )
     else
         case ${cmd} in
             attach-session|attach)
