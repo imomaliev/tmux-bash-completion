@@ -37,52 +37,25 @@ function _tmux_complete_window() {
     COMPREPLY=( ${COMPREPLY[@]:-} $(compgen -W "${sessions}" -- "${cur}") )
 }
 
-_tmux() {
-    local cur prev
-    local i cmd cmd_index option option_index
-    local opts=""
+__tmux_init_completion()
+{
     COMPREPLY=()
-    cur="${COMP_WORDS[COMP_CWORD]}"
-    prev="${COMP_WORDS[COMP_CWORD-1]}"
+    _get_comp_words_by_ref cur prev words cword
+}
 
-    if [ ${prev} != -f ]; then
-    # Search for the command
-    local skip_next=0
-    for ((i=1; $i<=$COMP_CWORD; i++)); do
-        if [[ ${skip_next} -eq 1 ]]; then
-            #echo "Skipping"
-            skip_next=0;
-        elif [[ ${COMP_WORDS[i]} != -* ]]; then
-            cmd="${COMP_WORDS[i]}"
-            cmd_index=${i}
-            break
-        elif [[ ${COMP_WORDS[i]} == -f ]]; then
-            skip_next=1
-        fi
-    done
-
-    # Search for the last option command
-    skip_next=0
-    for ((i=1; $i<=$COMP_CWORD; i++)); do
-        if [[ ${skip_next} -eq 1 ]]; then
-            #echo "Skipping"
-            skip_next=0;
-        elif [[ ${COMP_WORDS[i]} == -* ]]; then
-            option="${COMP_WORDS[i]}"
-            option_index=${i}
-            if [[ ${COMP_WORDS[i]} == -- ]]; then
-                break;
-            fi
-        elif [[ ${COMP_WORDS[i]} == -f ]]; then
-            skip_next=1
-        fi
-    done
-
-    if [[ $COMP_CWORD -le $cmd_index ]]; then
-        # The user has not specified a command yet
-        COMPREPLY=( ${COMPREPLY[@]:-} $(compgen -W "$(tmux start \; list-commands | cut -d' ' -f1)" -- "${cur}") )
+_tmux() {
+    local cur prev words cword;
+    if declare -F _init_completions >/dev/null 2>&1; then
+        _init_completion
     else
-        case ${cmd} in
+        __tmux_init_completion
+    fi
+
+    if [[ $cword -eq 1 ]]; then
+        COMPREPLY=($( compgen -W "$(tmux start\; list-commands | cut -d' ' -f1)" -- "$cur" ));
+        return 0
+    else
+        case ${words[1]} in
             attach-session|attach)
             case "$prev" in
                 -t) _tmux_complete_session "${cur}" ;;
@@ -149,12 +122,11 @@ _tmux() {
                 *) options="-t" ;;
             esac ;;
           esac # case ${cmd}
-        fi # command specified
-      fi # not -f
+    fi # command specified
 
-      if [[ -n "${options}" ]]; then
-          COMPREPLY=( ${COMPREPLY[@]:-} $(compgen -W "${options}" -- "${cur}") )
-      fi
+    if [[ -n "${options}" ]]; then
+        COMPREPLY=( ${COMPREPLY[@]:-} $(compgen -W "${options}" -- "${cur}") )
+    fi
 
       return 0
 
