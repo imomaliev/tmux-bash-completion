@@ -110,6 +110,8 @@ _tmux() {
                 -t) _tmux_complete_session "${cur}" ;;
                 *) options="-t" ;;
             esac ;;
+            source-file|source)
+                _filedir ;;
             suspend-client|suspendc)
             case "$prev" in
                 -t) _tmux_complete_client "${cur}" ;;
@@ -138,6 +140,6 @@ _tmux() {
 
 }
 # http://linux.die.net/man/1/bash
-complete -o default -F _tmux tmux
+complete -F _tmux tmux
 
 # END tmux completion
