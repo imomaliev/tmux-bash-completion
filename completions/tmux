@@ -25,19 +25,10 @@ function _tmux_complete_session() {
     return 0
 }
 
-function _tmux_complete_window() {
+function _tmux_complete_pane() {
     local IFS=$'\n'
     local cur="${1}"
-    local session_name="$(echo "${cur}" | sed 's/\\//g' | cut -d ':' -f 1)"
-    local sessions
-
-    sessions="$(tmux list-sessions 2> /dev/null | sed -re 's/([^:]+:).*$/\1/')"
-    if [[ -n "${session_name}" ]]; then
-        sessions="${sessions}
-        $(tmux list-windows -t "${session_name}" 2> /dev/null | sed -re 's/^([^:]+):.*$/'"${session_name}"':\1/')"
-    fi
-    cur="$(echo "${cur}" | sed -e 's/:/\\\\:/')"
-    sessions="$(echo "${sessions}" | sed -e 's/:/\\\\:/')"
+    sessions="$(tmux list-panes -a -F '#{session_name}:#{window_index}.#{pane_index}' 2> /dev/null )"
     COMPREPLY=( ${COMPREPLY[@]:-} $(compgen -W "${sessions}" -- "${cur}") )
     options=""
     return 0
@@ -85,14 +76,8 @@ _tmux() {
             new-session|new)
             case "$prev" in
                 -t) _tmux_complete_session "${cur}" ;;
-                -[n|d|s]) options="-d -n -s -t --" ;;
-                *)
-                if [[ ${COMP_WORDS[option_index]} == -- ]]; then
-                    _command_offset ${option_index}
-                else
-                    options="-d -n -s -t --"
-                fi
-                ;;
+                -n|-d|-s) return;;
+                *) options="-d -n -s -t --" ;;
             esac
             ;;
             refresh-client|refresh)
@@ -125,8 +110,8 @@ _tmux() {
             esac ;;
 
             send-keys|send)
-            case "$option" in
-                -t) _tmux_complete_window "${cur}" ;;
+            case "$prev" in
+                -t) _tmux_complete_pane "${cur}" ;;
                 *) options="-t" ;;
             esac ;;
           esac # case ${cmd}
