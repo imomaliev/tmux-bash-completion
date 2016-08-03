@@ -52,6 +52,7 @@ _tmux() {
         COMPREPLY=($( compgen -W "$(tmux start\; list-commands | cut -d' ' -f1)" -- "$cur" ));
         return 0
     else
+        options=""
         case ${words[1]} in
             attach-session|attach)
             case "$prev" in
@@ -114,7 +115,7 @@ _tmux() {
                 -t) _tmux_complete_pane "${cur}" ;;
                 *) options="-t" ;;
             esac ;;
-          esac # case ${cmd}
+        esac # case ${cmd}
     fi # command specified
 
     if [[ -n "${options}" ]]; then
