@@ -1,131 +1,16 @@
-#!/usr/bin/env bash
+# tmux(1) completion                                       -*- shell-script -*-
 
-# Copy of https://github.com/Bash-it/bash-it/blob/master/completion/available/tmux.completion.bash
-# and https://github.com/przepompownia/bash-it/blob/master/completion/available/tmux.completion.bash
-# slightly refactored
 
-# tmux completion
-# See: http://www.debian-administration.org/articles/317 for how to write more.
-# Usage: Put "source bash_completion_tmux.sh" into your .bashrc
-# Based upon the example at http://paste-it.appspot.com/Pj4mLycDE
-
-function _tmux_complete_client() {
-    local IFS=$'\n'
-    local cur="${1}"
-    COMPREPLY=( ${COMPREPLY[@]:-} $(compgen -W "$(tmux list-clients -F '#{client_tty}' 2> /dev/null)" -- "${cur}") )
-    options=""
-    return 0
-}
-
-function _tmux_complete_session() {
-    local IFS=$'\n'
-    local cur="${1}"
-    COMPREPLY=( ${COMPREPLY[@]:-} $(compgen -W "$(tmux list-sessions -F '#{session_name}' 2> /dev/null)" -- "${cur}") )
-    options=""
-    return 0
-}
-
-function _tmux_complete_pane() {
-    local IFS=$'\n'
-    local cur="${1}"
-    sessions="$(tmux list-panes -a -F '#{session_name}:#{window_index}.#{pane_index}' 2> /dev/null )"
-    COMPREPLY=( ${COMPREPLY[@]:-} $(compgen -W "${sessions}" -- "${cur}") )
-    options=""
-    return 0
-}
-
-__tmux_init_completion()
+_tmux()
 {
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev words cword
-}
-
-_tmux() {
-    local cur prev words cword;
-    if declare -F _init_completions >/dev/null 2>&1; then
-        _init_completion
-    else
-        __tmux_init_completion
-    fi
+    local cur prev words cword
+    _init_completion || return
 
     if [[ $cword -eq 1 ]]; then
-        COMPREPLY=($( compgen -W "$(tmux start\; list-commands | cut -d' ' -f1)" -- "$cur" ));
-        return 0
-    else
-        options=""
-        case ${words[1]} in
-            attach-session|attach)
-            case "$prev" in
-                -t) _tmux_complete_session "${cur}" ;;
-                *) options="-t -d" ;;
-            esac ;;
-            detach-client|detach)
-            case "$prev" in
-                -t) _tmux_complete_client "${cur}" ;;
-                *) options="-t" ;;
-            esac ;;
-            lock-client|lockc)
-            case "$prev" in
-                -t) _tmux_complete_client "${cur}" ;;
-                *) options="-t" ;;
-            esac ;;
-            lock-session|locks)
-            case "$prev" in
-                -t) _tmux_complete_session "${cur}" ;;
-                *) options="-t -d" ;;
-            esac ;;
-            new-session|new)
-            case "$prev" in
-                -t) _tmux_complete_session "${cur}" ;;
-                -n|-d|-s) return;;
-                *) options="-d -n -s -t --" ;;
-            esac
-            ;;
-            refresh-client|refresh)
-            case "$prev" in
-                -t) _tmux_complete_client "${cur}" ;;
-                *) options="-t" ;;
-            esac ;;
-            rename-session|rename)
-            case "$prev" in
-                -t) _tmux_complete_session "${cur}" ;;
-                *) options="-t" ;;
-            esac ;;
-            has-session|has|kill-session)
-            case "$prev" in
-                -t) _tmux_complete_session "${cur}" ;;
-                *) options="-t" ;;
-            esac ;;
-            source-file|source)
-                _filedir ;;
-            suspend-client|suspendc)
-            case "$prev" in
-                -t) _tmux_complete_client "${cur}" ;;
-                *) options="-t" ;;
-            esac ;;
-            switch-client|switchc)
-            case "$prev" in
-                -c) _tmux_complete_client "${cur}" ;;
-                -t) _tmux_complete_session "${cur}" ;;
-                *) options="-l -n -p -c -t" ;;
-            esac ;;
-
-            send-keys|send)
-            case "$prev" in
-                -t) _tmux_complete_pane "${cur}" ;;
-                *) options="-t" ;;
-            esac ;;
-        esac # case ${cmd}
-    fi # command specified
-
-    if [[ -n "${options}" ]]; then
-        COMPREPLY=( ${COMPREPLY[@]:-} $(compgen -W "${options}" -- "${cur}") )
+        COMPREPLY=( $( compgen -W "$(tmux list-commands -F '#{command_list_name}')" -- "$cur" ) )
     fi
 
-      return 0
-
-}
-# http://linux.die.net/man/1/bash
+} &&
 complete -F _tmux tmux
 
-# END tmux completion
+# ex: filetype=sh
