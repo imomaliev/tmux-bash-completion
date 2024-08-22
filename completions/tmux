@@ -46,14 +46,14 @@ function _tmux_complete_window() {
 function _tmux_complete_socket_name() {
     local IFS=$'\n'
     local cur="${1}" && shift
-    COMPREPLY=( ${COMPREPLY[@]:-} $(compgen -W "$(find /tmp/tmux-$UID -type s -printf '%P\n')" -- "${cur}") )
+    COMPREPLY=( ${COMPREPLY[@]:-} $(compgen -W "$(find "${TMUX_TMPDIR:-/tmp}/tmux-$UID" -type s -printf '%P\n')" -- "${cur}") )
     options=""
     return 0
 }
 function _tmux_complete_socket_path() {
     local IFS=$'\n'
     local cur="${1}" && shift
-    COMPREPLY=( ${COMPREPLY[@]:-} $(compgen -W "$(find /tmp/tmux-$UID -type s -printf '%p\n')" -- "${cur}") )
+    COMPREPLY=( ${COMPREPLY[@]:-} $(compgen -W "$(find "${TMUX_TMPDIR:-/tmp}/tmux-$UID" -type s -printf '%p\n')" -- "${cur}") )
     options=""
     return 0
 }
