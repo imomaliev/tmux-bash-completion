@@ -1,15 +1,21 @@
+# TMUX bash completion
+
+**Archived**: Bash completion for tmux is now part of the [bash-completion](https://github.com/scop/bash-completion/), please read more [here](https://github.com/imomaliev/tmux-bash-completion/issues/13#issuecomment-2873735797)
+
+---
+
 TMUX bash completion based on [bash-it's tmux completion](https://github.com/Bash-it/bash-it/blob/master/completion/available/tmux.completion.bash)
 
-# Available completions
+## Available completions
 
 * commands
 * files
 * sessions
 * windows
 
-# Installation
+## Installation
 
-## Using [`bash-completion`](https://github.com/scop/bash-completion)
+### Using [`bash-completion`](https://github.com/scop/bash-completion)
 
 This installation method __requires__ [`bash-completion`](https://github.com/scop/bash-completion) 1.2 or higher.
 
@@ -42,7 +48,7 @@ $ curl -fSsL "https://raw.githubusercontent.com/imomaliev/tmux-bash-completion/m
 $ source ~/.bashrc
 ```
 
-## Without `bash-completion`
+### Without `bash-completion`
 
 You can simply download the completion file and source it as part of your shell startup.
 
@@ -52,7 +58,7 @@ $ echo 'source ~/.bash.tmux-bash-completion' >> ~/.bashrc
 $ source ~/.bashrc # load it for your current session
 ```
 
-# TODO
+## TODO
 
 * use `list-sessions -F`
 * check all cases for `complete -o default`
